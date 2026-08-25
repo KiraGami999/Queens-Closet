@@ -1,0 +1,107 @@
+---
+description: Queens Closet project rules — stack, architecture, AI/storage abstractions, security, UI direction
+alwaysApply: true
+---
+
+# Queens Closet — Project Rules
+
+Queens Closet is a premium AI-powered virtual fashion studio: upload clothing designs and client
+photos, generate AI virtual try-on previews, and manage generated looks. It must feel like a
+premium fashion-tech product, never a generic CRUD admin dashboard.
+
+## Stack
+
+Next.js (App Router) + React + TypeScript (strict) + Tailwind CSS + shadcn/ui + Lucide React +
+Prisma + Neon Postgres + Auth.js (Credentials, JWT sessions) + Zod + React Hook Form +
+Vercel Blob (image storage) + FASHN AI (virtual try-on) + Vercel deployment.
+Do not introduce alternative frameworks/libraries for things already covered here without asking.
+
+## TypeScript
+
+No `any`, no unnecessary type assertions, no duplicated interfaces, no untyped API responses.
+Prefer explicit types/interfaces, discriminated unions, Zod schemas, and typed service functions.
+
+## Architecture (never skip layers)
+
+```
+UI (app/**, components/**)
+  -> lib/services/*  (business logic, ownership checks)
+    -> lib/db/prisma.ts        (Prisma access)
+    -> lib/ai/*                (VirtualTryOnProvider interface + provider impls)
+    -> lib/storage/*           (ImageStorage interface + provider impls)
+```
+
+Never put business logic, Prisma calls, or provider API calls directly inside React components or
+route handlers — call a service function instead.
+
+### AI provider abstraction
+
+All AI calls go through `VirtualTryOnProvider` (`lib/ai/virtual-try-on-provider.ts`): `createGeneration`,
+`getStatus`, `getResult`, optional `cancel`, and normalized provider errors. `lib/ai/index.ts` selects
+the implementation via `AI_PROVIDER` env var. The current implementation targets FASHN AI
+(`POST /v1/run`, `GET /v1/status/{id}`). Swapping providers must never require UI changes. Never train
+a model or run GPU inference inside the Next.js app/Vercel functions.
+
+### Storage abstraction
+
+All uploads go through `ImageStorage` (`lib/storage/image-storage.ts`) with a Vercel Blob
+implementation. Store only URLs + metadata (width, height, format, storage key) in Postgres —
+never raw image bytes.
+
+## Generation flow (must follow in order)
+
+1. Validate person image, 2. validate garment image, 3. validate garment category, 4. upload images,
+5. create `TryOnSession`, 6. status `QUEUED`, 7. submit to provider, 8. store provider job id,
+9. status `PROCESSING`, 10. poll/webhook status, 11. store result, 12. status `COMPLETED`, 13. display result.
+On failure: store the error, set status `FAILED`, show a useful user-facing message, never expose
+provider secrets or internals.
+
+## Image rules
+
+Validate MIME type, extension, file size, and dimensions. Supported formats: JPG/JPEG/PNG/WEBP only.
+
+## Security & privacy
+
+Never expose DB credentials, AI API keys, storage credentials, or auth secrets to the browser — keep
+secrets server-side via env vars. Validate all server inputs with Zod. Authenticate every protected
+route and authorize every resource: a user must never access another user's clients, garments, or
+generated images (always scope Prisma queries by `userId`). Client photos are sensitive: support
+consent status, deletion, and ownership checks. Never use client photos for model training. Never
+send images to the AI provider except on an explicit user-triggered generation.
+
+## Database
+
+Use Prisma migrations only — never hand-edit the production schema. Use foreign keys, indexes on
+`userId`/status columns, timestamps on major entities, and soft deletion (`archivedAt`) for
+catalogue records instead of hard deletes.
+
+## API conventions
+
+Zod-validate all request bodies. Respond with `{ success: true, data }` or
+`{ success: false, error: { code, message } }` (see `lib/api/response.ts`). Never return raw
+exceptions or stack traces to the client.
+
+## UI direction
+
+Elegant, modern, minimal, editorial, spacious, mobile-responsive, accessible. Avoid generic
+admin-dashboard looks, excessive gradients/animations, clutter, unnecessary cards, and inconsistent
+spacing. Reuse the existing design system/components instead of inventing new patterns.
+
+## Loading & error states
+
+Every async action (upload, generate, load, delete, save) needs a visible loading state. Errors must
+be predictable, logged server-side, and shown as clear, actionable messages (e.g. "We couldn't
+generate this look. Please try another photo or garment image.") — never raw `500` text.
+
+## AI cost protection
+
+Disable the Generate button while a request is in flight; guard against duplicate submissions and
+rate-limit generation endpoints. Track generation/usage status so retries don't silently multiply
+provider calls.
+
+## General behavior
+
+Before large features: inspect existing code, reuse existing components/services, identify affected
+files, implement the smallest coherent change, then validate (typecheck, lint, build). Don't rewrite
+working code unnecessarily, install packages without reason, or create duplicate
+components/utilities. Don't leave TODO placeholders for core functionality.

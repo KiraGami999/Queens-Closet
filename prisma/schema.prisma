@@ -1,0 +1,174 @@
+// Prisma schema for Queens Closet.
+// See .cursor/rules/queens-closet.mdc for the architecture and data rules
+// this schema must satisfy (ownership scoping, soft deletion, timestamps).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum GarmentCategory {
+  TOP
+  BOTTOM
+  DRESS
+  OUTERWEAR
+  FOOTWEAR
+  ACCESSORY
+  FULL_BODY
+}
+
+enum ImageFormat {
+  JPG
+  JPEG
+  PNG
+  WEBP
+}
+
+enum TryOnStatus {
+  QUEUED
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+/// A studio owner / stylist account. Every catalogue entity is scoped to a
+/// User so one account can never see another account's clients, garments,
+/// or generations.
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  image        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  clients       Client[]
+  garments      Garment[]
+  tryOnSessions TryOnSession[]
+
+  @@map("users")
+}
+
+/// A client/model whose photos are used as the "person" input for try-on
+/// generations. Contains sensitive personal data — see privacy rules.
+model Client {
+  id           String    @id @default(cuid())
+  userId       String
+  name         String
+  email        String?
+  phone        String?
+  notes        String?
+  consentGiven Boolean   @default(false)
+  consentAt    DateTime?
+  archivedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photos        ClientPhoto[]
+  tryOnSessions TryOnSession[]
+
+  @@index([userId])
+  @@index([userId, archivedAt])
+  @@map("clients")
+}
+
+/// A single uploaded photo of a client. Stored as a URL + metadata only —
+/// the actual bytes live in Vercel Blob storage.
+model ClientPhoto {
+  id         String      @id @default(cuid())
+  clientId   String
+  url        String
+  storageKey String
+  width      Int
+  height     Int
+  format     ImageFormat
+  createdAt  DateTime    @default(now())
+
+  client        Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tryOnSessions TryOnSession[]
+
+  @@index([clientId])
+  @@map("client_photos")
+}
+
+/// A clothing design in the catalogue.
+model Garment {
+  id          String          @id @default(cuid())
+  userId      String
+  name        String
+  category    GarmentCategory
+  description String?
+  archivedAt  DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  images        GarmentImage[]
+  tryOnSessions TryOnSession[]
+
+  @@index([userId])
+  @@index([userId, archivedAt])
+  @@index([userId, category])
+  @@map("garments")
+}
+
+/// A single uploaded image of a garment (front/back/detail shots, etc).
+model GarmentImage {
+  id         String      @id @default(cuid())
+  garmentId  String
+  url        String
+  storageKey String
+  width      Int
+  height     Int
+  format     ImageFormat
+  createdAt  DateTime    @default(now())
+
+  garment       Garment        @relation(fields: [garmentId], references: [id], onDelete: Cascade)
+  tryOnSessions TryOnSession[]
+
+  @@index([garmentId])
+  @@map("garment_images")
+}
+
+/// One virtual try-on generation request/result, tracked end-to-end per the
+/// generation flow in the project rules (QUEUED -> PROCESSING -> COMPLETED|FAILED).
+model TryOnSession {
+  id             String      @id @default(cuid())
+  userId         String
+  clientId       String
+  clientPhotoId  String
+  garmentId      String
+  garmentImageId String
+  status         TryOnStatus @default(QUEUED)
+
+  providerName     String
+  providerJobId    String?
+  resultUrl        String?
+  resultStorageKey String?
+
+  errorCode    String?
+  errorMessage String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client       Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientPhoto  ClientPhoto  @relation(fields: [clientPhotoId], references: [id], onDelete: Cascade)
+  garment      Garment      @relation(fields: [garmentId], references: [id], onDelete: Cascade)
+  garmentImage GarmentImage @relation(fields: [garmentImageId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([status])
+  @@index([providerJobId])
+  @@map("try_on_sessions")
+}
