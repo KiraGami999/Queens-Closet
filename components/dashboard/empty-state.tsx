@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 
+import { GradientBlob } from "@/components/decor/blobs";
 import { Button } from "@/components/ui/button";
 
 export function EmptyState({
@@ -7,24 +8,31 @@ export function EmptyState({
   title,
   description,
   actionLabel,
+  note,
 }: {
   icon: LucideIcon;
   title: string;
   description: string;
   actionLabel?: string;
+  note?: string;
 }) {
   return (
-    <div className="flex min-h-[50vh] flex-col items-center justify-center rounded-xl border border-dashed px-6 py-20 text-center">
-      <div className="mb-5 flex size-12 items-center justify-center rounded-full bg-muted">
-        <Icon className="size-5 text-muted-foreground" />
+    <div className="relative flex min-h-[50vh] flex-col items-center justify-center overflow-hidden rounded-3xl border border-dashed border-border/70 bg-card/40 px-6 py-20 text-center">
+      <GradientBlob variant="purple" className="top-1/2 left-1/2 size-72 -translate-x-1/2 -translate-y-1/2 opacity-20" />
+      <div className="relative mb-6 flex size-16 items-center justify-center rounded-full gradient-lavender-purple shadow-editorial">
+        <Icon className="size-6 text-white" />
       </div>
-      <h2 className="font-serif text-xl">{title}</h2>
-      <p className="mt-2 max-w-sm text-sm text-muted-foreground">{description}</p>
+      <h2 className="relative font-heading text-2xl italic">{title}</h2>
+      <p className="relative mt-2 max-w-sm text-sm text-muted-foreground">{description}</p>
       {actionLabel && (
-        <Button className="mt-6" disabled>
+        <Button
+          disabled
+          className="relative mt-6 rounded-full gradient-purple-magenta px-6 text-primary-foreground"
+        >
           {actionLabel}
         </Button>
       )}
+      {note && <p className="relative mt-3 text-xs text-muted-foreground/70">{note}</p>}
     </div>
   );
 }

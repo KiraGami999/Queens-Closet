@@ -1,8 +1,52 @@
+import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { GradientBlob } from "@/components/decor/blobs";
+import { ScribbleLine } from "@/components/decor/blobs";
+import { SiteHeader } from "@/components/marketing/site-header";
+import { HeroVisual } from "@/components/marketing/hero-visual";
+import { Reveal } from "@/components/motion/reveal";
 import { Button } from "@/components/ui/button";
+
+const stats = [
+  { value: "3", label: "Considered steps from sketch to finished look" },
+  { value: "100%", label: "Client photos stay private to your studio" },
+  { value: "24/7", label: "Your AI atelier, always open" },
+];
+
+const steps = [
+  {
+    index: "01",
+    title: "Upload the garment",
+    description: "Drop in flats, product shots or fabric studies from your closet.",
+  },
+  {
+    index: "02",
+    title: "Choose the muse",
+    description: "Pick a client portrait from your model portfolio.",
+  },
+  {
+    index: "03",
+    title: "Generate the look",
+    description: "AI drapes the piece and returns a campaign-ready frame.",
+  },
+];
+
+const closetPreview = [
+  { name: "Amara Silk Gown", meta: "Evening · Magenta", variant: "purple" as const },
+  { name: "Regent Tailored Blazer", meta: "Tailoring · Deep Purple", variant: "violet" as const },
+  { name: "Solene Pleated Midi", meta: "Day · Coral", variant: "coral" as const },
+  { name: "Lilac Boulevard Trench", meta: "Outerwear · Lavender", variant: "gold" as const },
+];
+
+const swatchClass: Record<string, string> = {
+  purple: "gradient-purple-magenta",
+  violet: "bg-[color:var(--qc-violet)]",
+  coral: "gradient-magenta-coral",
+  gold: "bg-[color:var(--qc-gold)]",
+};
 
 export default async function HomePage() {
   const session = await auth();
@@ -12,27 +56,211 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center px-6 text-center">
-      <div className="max-w-2xl space-y-6">
-        <p className="text-xs tracking-[0.3em] text-muted-foreground uppercase">
-          Virtual Fashion Studio
-        </p>
-        <h1 className="font-serif text-4xl leading-tight sm:text-5xl">
-          Queens Closet
-        </h1>
-        <p className="mx-auto max-w-md text-balance text-muted-foreground">
-          Upload garments and client photos, then generate polished
-          AI-powered virtual try-on previews in moments.
-        </p>
-        <div className="flex items-center justify-center gap-3 pt-2">
-          <Button size="lg" render={<Link href="/register" />}>
-            Get started
-          </Button>
-          <Button size="lg" variant="outline" render={<Link href="/login" />}>
-            Sign in
-          </Button>
-        </div>
+    <main className="relative overflow-hidden bg-background">
+      <div aria-hidden className="absolute inset-0 -z-10">
+        <GradientBlob variant="purple" className="top-[-6rem] left-[-8rem] size-[28rem]" />
+        <GradientBlob variant="coral" className="top-40 right-[-10rem] size-[24rem] opacity-30" />
       </div>
+
+      <SiteHeader />
+
+      {/* HERO */}
+      <section className="relative mx-auto grid w-full max-w-7xl gap-14 px-6 pt-6 pb-24 sm:px-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-10">
+        <div className="max-w-xl">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/70 px-3.5 py-1.5 text-xs font-medium tracking-wide text-[color:var(--qc-magenta)] uppercase">
+            <Sparkles className="size-3.5" />
+            Virtual Fashion Studio
+          </div>
+
+          <h1 className="font-heading text-5xl leading-[1.05] tracking-tight sm:text-6xl">
+            WHERE FASHION
+            <br />
+            <span className="text-gradient-purple-magenta italic">meets imagination.</span>
+          </h1>
+
+          <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground">
+            Upload a design. Choose your model. Let AI bring the look to life.
+          </p>
+
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <Button
+              size="lg"
+              render={<Link href="/register" />}
+              className="h-12 gap-2 rounded-full gradient-purple-magenta px-6 text-base text-primary-foreground shadow-editorial transition-transform hover:-translate-y-0.5 hover:opacity-95"
+            >
+              Create a Look
+              <ArrowRight className="size-4" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              render={<Link href="/login" />}
+              className="h-12 rounded-full border-border bg-card px-6 text-base hover:-translate-y-0.5 hover:bg-card"
+            >
+              Explore the Closet
+            </Button>
+          </div>
+
+          <ScribbleLine className="mt-10 hidden sm:block" />
+
+          <dl className="mt-10 grid grid-cols-3 gap-6 border-t border-border/70 pt-8">
+            {stats.map((stat) => (
+              <div key={stat.label}>
+                <dt className="font-heading text-3xl">{stat.value}</dt>
+                <dd className="mt-1 text-[11px] leading-snug text-muted-foreground uppercase tracking-wide">
+                  {stat.label}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <Reveal delay={0.1} className="lg:justify-self-end">
+          <HeroVisual />
+        </Reveal>
+      </section>
+
+      {/* PROCESS */}
+      <section id="studio" className="relative border-t border-border/70 bg-card/40 py-24">
+        <div className="mx-auto w-full max-w-7xl px-6 sm:px-10">
+          <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+            <Reveal>
+              <p className="text-xs font-medium tracking-[0.2em] text-[color:var(--qc-magenta)] uppercase">
+                The Process
+              </p>
+              <h2 className="mt-4 font-heading text-4xl leading-tight sm:text-5xl">
+                YOUR STYLE.
+                <br />
+                <span className="text-gradient-purple-magenta italic">Reimagined.</span>
+              </h2>
+              <p className="mt-5 max-w-md text-sm leading-relaxed text-muted-foreground">
+                Three considered steps between a sketch and a finished editorial
+                image — no photoshoot, no studio hire, no compromise on taste.
+              </p>
+
+              <ol className="mt-10 space-y-7">
+                {steps.map((step) => (
+                  <li key={step.index} className="flex gap-5 border-l border-border/70 pl-5">
+                    <span className="font-heading text-sm text-[color:var(--qc-coral)]">
+                      {step.index}
+                    </span>
+                    <div>
+                      <p className="font-heading text-lg">{step.title}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{step.description}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </Reveal>
+
+            <Reveal delay={0.15}>
+              <div className="bg-grain relative overflow-hidden rounded-[1.75rem] shadow-editorial">
+                <div
+                  className="aspect-[4/3] w-full"
+                  style={{
+                    backgroundImage:
+                      "radial-gradient(circle at 20% 20%, var(--qc-coral) 0%, transparent 45%), radial-gradient(circle at 80% 30%, var(--qc-gold) 0%, transparent 40%), radial-gradient(circle at 50% 90%, var(--qc-magenta) 0%, transparent 55%), linear-gradient(135deg, var(--qc-purple), var(--qc-magenta))",
+                  }}
+                />
+                <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-white/25 bg-white/15 px-5 py-4 backdrop-blur-md">
+                  <p className="text-[10px] font-medium tracking-[0.2em] text-white/80 uppercase">
+                    Now generating
+                  </p>
+                  <p className="mt-1 font-heading text-lg text-white italic">
+                    Creating your look&hellip;
+                  </p>
+                  <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-white/25">
+                    <div className="h-full w-2/3 rounded-full bg-white" />
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* CLOSET PREVIEW */}
+      <section id="closet" className="relative py-24">
+        <div className="mx-auto w-full max-w-7xl px-6 sm:px-10">
+          <Reveal className="flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="text-xs font-medium tracking-[0.2em] text-[color:var(--qc-magenta)] uppercase">
+                The Closet
+              </p>
+              <h2 className="mt-4 max-w-md font-heading text-4xl leading-tight sm:text-5xl">
+                A digital wardrobe with an editor&rsquo;s eye
+              </h2>
+            </div>
+            <Button
+              variant="outline"
+              render={<Link href="/register" />}
+              className="gap-2 rounded-full border-border bg-card"
+            >
+              View all pieces
+              <ArrowRight className="size-4" />
+            </Button>
+          </Reveal>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {closetPreview.map((item, index) => (
+              <Reveal key={item.name} delay={index * 0.06}>
+                <div className="group overflow-hidden rounded-3xl border border-border/70 bg-card shadow-editorial transition-transform duration-300 hover:-translate-y-1.5">
+                  <div
+                    className={`bg-grain relative flex aspect-[3/4] items-center justify-center overflow-hidden ${swatchClass[item.variant]}`}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+                    <span className="relative font-heading text-sm text-white/90 italic">
+                      Queens Closet
+                    </span>
+                  </div>
+                  <div className="p-4">
+                    <p className="font-heading text-base leading-tight">{item.name}</p>
+                    <p className="mt-1 text-[11px] tracking-wide text-muted-foreground uppercase">
+                      {item.meta}
+                    </p>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section id="muses" className="relative px-6 pb-24 sm:px-10">
+        <Reveal>
+          <div className="bg-grain relative mx-auto flex w-full max-w-7xl flex-col items-start gap-6 overflow-hidden rounded-[2rem] gradient-purple-magenta px-8 py-14 sm:px-14">
+            <GradientBlob variant="gold" className="top-[-4rem] right-[-4rem] size-64 opacity-30" />
+            <p className="text-xs font-medium tracking-[0.2em] text-white/70 uppercase">
+              Muses &amp; Clients
+            </p>
+            <h2 className="max-w-lg font-heading text-4xl leading-tight text-white sm:text-5xl">
+              Every client deserves a runway moment.
+            </h2>
+            <p className="max-w-md text-sm leading-relaxed text-white/80">
+              Build a portfolio of muses, then let the AI atelier dress each one
+              in your latest collection — in seconds, not studio days.
+            </p>
+            <Button
+              size="lg"
+              render={<Link href="/register" />}
+              className="mt-2 h-12 gap-2 rounded-full bg-white px-6 text-base text-[color:var(--qc-purple)] shadow-editorial hover:-translate-y-0.5 hover:bg-white/90"
+            >
+              Open the Studio
+              <ArrowRight className="size-4" />
+            </Button>
+          </div>
+        </Reveal>
+      </section>
+
+      <footer className="border-t border-border/70 py-10">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-4 px-6 text-center sm:flex-row sm:px-10 sm:text-left">
+          <span className="font-heading text-sm tracking-[0.16em]">QUEENS CLOSET</span>
+          <p className="text-xs text-muted-foreground">
+            &copy; {new Date().getFullYear()} Queens Closet. Luxury fashion meets creative technology.
+          </p>
+        </div>
+      </footer>
     </main>
   );
 }

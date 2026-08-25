@@ -27,7 +27,15 @@ export async function listClients(params: ListClientsParams) {
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * pageSize,
       take: pageSize,
-      include: { photos: true },
+      include: {
+        photos: true,
+        _count: { select: { tryOnSessions: true } },
+        tryOnSessions: {
+          where: { status: "COMPLETED" },
+          orderBy: { completedAt: "desc" },
+          take: 1,
+        },
+      },
     }),
     prisma.client.count({ where }),
   ]);

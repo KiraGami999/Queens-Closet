@@ -33,10 +33,14 @@ export async function listTryOnSessions(params: {
   userId: string;
   page?: number;
   pageSize?: number;
+  status?: "QUEUED" | "PROCESSING" | "COMPLETED" | "FAILED" | "CANCELLED";
 }) {
   const page = Math.max(1, params.page ?? 1);
   const pageSize = Math.min(params.pageSize ?? DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
-  const where = { userId: params.userId };
+  const where = {
+    userId: params.userId,
+    ...(params.status && { status: params.status }),
+  };
 
   const [items, total] = await Promise.all([
     prisma.tryOnSession.findMany({

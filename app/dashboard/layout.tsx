@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
-import { AppSidebar } from "@/components/dashboard/app-sidebar";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
+import { BottomNav } from "@/components/dashboard/bottom-nav";
+import { TopNav } from "@/components/dashboard/top-nav";
 
 export default async function DashboardLayout({
   children,
@@ -16,22 +15,19 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  const user = {
+    name: session.user.name ?? "Studio owner",
+    email: session.user.email ?? "",
+    image: session.user.image,
+  };
+
   return (
-    <SidebarProvider>
-      <AppSidebar
-        user={{
-          name: session.user.name ?? "Studio owner",
-          email: session.user.email ?? "",
-          image: session.user.image,
-        }}
-      />
-      <SidebarInset>
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-        </header>
-        <main className="flex-1 px-6 py-8 md:px-10 md:py-10">{children}</main>
-      </SidebarInset>
-    </SidebarProvider>
+    <div className="min-h-svh bg-background">
+      <TopNav user={user} />
+      <main className="mx-auto w-full max-w-7xl px-6 py-8 pb-28 md:px-10 md:py-10 lg:pb-10">
+        {children}
+      </main>
+      <BottomNav />
+    </div>
   );
 }
