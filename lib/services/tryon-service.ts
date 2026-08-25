@@ -1,5 +1,10 @@
 import { AppError, ApiErrorCode } from "@/lib/api/response";
-import { getVirtualTryOnProvider, TryOnProviderError } from "@/lib/ai";
+import {
+  createVirtualTryOnGeneration,
+  getActiveTryOnProviderName,
+  getVirtualTryOnGenerationStatus,
+  TryOnProviderError,
+} from "@/lib/ai";
 import { prisma } from "@/lib/db/prisma";
 import { getClientOrThrow } from "@/lib/services/client-service";
 import { getGarmentOrThrow } from "@/lib/services/garment-service";
@@ -82,7 +87,7 @@ export async function createTryOnSession(params: {
     throw new AppError(ApiErrorCode.NOT_FOUND, "Garment image not found.", 404);
   }
 
-  const provider = getVirtualTryOnProvider();
+  const providerName = getActiveTryOnProviderName();
 
   return prisma.tryOnSession.create({
     data: {
@@ -92,7 +97,8 @@ export async function createTryOnSession(params: {
       garmentId: garment.id,
       garmentImageId: garmentImage.id,
       status: "QUEUED",
-      providerName: provider.name,
+      providerName,
+      description: params.input.description || null,
     },
   });
 }
@@ -109,18 +115,19 @@ export async function submitTryOnSession(params: { userId: string; sessionId: st
     return session;
   }
 
-  const provider = getVirtualTryOnProvider();
+  const providerName = getActiveTryOnProviderName();
 
   try {
-    const { providerJobId } = await provider.createGeneration({
+    const { providerJobId } = await createVirtualTryOnGeneration({
       personImageUrl: session.clientPhoto.url,
       garmentImageUrl: session.garmentImage.url,
       garmentCategory: session.garment.category,
+      description: session.description ?? undefined,
     });
 
     return prisma.tryOnSession.update({
       where: { id: session.id },
-      data: { status: "PROCESSING", providerJobId },
+      data: { status: "PROCESSING", providerJobId, providerName },
     });
   } catch (error) {
     return failTryOnSession({ session, error });
@@ -138,10 +145,8 @@ export async function refreshTryOnSessionStatus(params: {
     return session;
   }
 
-  const provider = getVirtualTryOnProvider();
-
   try {
-    const result = await provider.getStatus(session.providerJobId);
+    const result = await getVirtualTryOnGenerationStatus(session.providerJobId);
 
     if (result.status === "completed" && result.resultUrl) {
       return prisma.tryOnSession.update({

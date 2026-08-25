@@ -104,6 +104,7 @@ export class FashnProvider implements VirtualTryOnProvider {
         inputs: {
           model_image: input.personImageUrl,
           product_image: input.garmentImageUrl,
+          ...(input.description ? { prompt: input.description } : {}),
         },
       }),
     });

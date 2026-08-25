@@ -148,6 +148,9 @@ model TryOnSession {
   garmentImageId String
   status         TryOnStatus @default(QUEUED)
 
+  /// Optional styling instructions forwarded to the active AI provider.
+  description String?
+
   providerName     String
   providerJobId    String?
   resultUrl        String?

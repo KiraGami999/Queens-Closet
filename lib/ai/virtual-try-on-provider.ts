@@ -12,13 +12,19 @@ export type TryOnProviderStatus =
   | "completed"
   | "failed";
 
+/**
+ * Canonical AI input — every provider receives the same shape:
+ * person image + garment image + garment type + optional description.
+ */
 export type TryOnGenerationInput = {
   /** Publicly fetchable URL or data URI of the person/model photo. */
   personImageUrl: string;
   /** Publicly fetchable URL or data URI of the garment photo. */
   garmentImageUrl: string;
-  /** App-level garment category, for providers that support it. */
+  /** App-level garment category / type (TOP, DRESS, etc.). */
   garmentCategory: string;
+  /** Optional styling instructions for providers that support prompts. */
+  description?: string;
 };
 
 export type TryOnGenerationHandle = {

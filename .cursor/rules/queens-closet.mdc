@@ -13,7 +13,8 @@ premium fashion-tech product, never a generic CRUD admin dashboard.
 
 Next.js (App Router) + React + TypeScript (strict) + Tailwind CSS + shadcn/ui + Lucide React +
 Prisma + Neon Postgres + Auth.js (Credentials, JWT sessions) + Zod + React Hook Form +
-Vercel Blob (image storage) + FASHN AI (virtual try-on) + Vercel deployment.
+Vercel Blob (image storage) + pluggable virtual try-on providers (mock / FASHN / fal.ai) +
+Vercel deployment.
 Do not introduce alternative frameworks/libraries for things already covered here without asking.
 
 ## TypeScript
@@ -36,11 +37,30 @@ route handlers — call a service function instead.
 
 ### AI provider abstraction
 
-All AI calls go through `VirtualTryOnProvider` (`lib/ai/virtual-try-on-provider.ts`): `createGeneration`,
-`getStatus`, `getResult`, optional `cancel`, and normalized provider errors. `lib/ai/index.ts` selects
-the implementation via `AI_PROVIDER` env var. The current implementation targets FASHN AI
-(`POST /v1/run`, `GET /v1/status/{id}`). Swapping providers must never require UI changes. Never train
-a model or run GPU inference inside the Next.js app/Vercel functions.
+Never couple the UI to one AI vendor. Call stack:
+
+```
+Queens Closet UI
+  → VirtualTryOnService (lib/ai/virtual-try-on-service.ts + tryon-service.ts)
+    → VirtualTryOnProvider interface
+      ├── mock   (free stand-in; default when unpaid)
+      ├── fashn  (FASHN cloud API)
+      ├── fal    (fal.ai hosted try-on)
+      └── future providers
+```
+
+Canonical model input (every provider receives the same shape):
+
+```
+person image + garment image + garment type + optional description
+  → virtual try-on model
+  → generated image
+```
+
+`lib/ai/index.ts` selects the implementation via `AI_PROVIDER` (`mock` | `fashn` | `fal`).
+`AI_API_KEY` holds the active vendor key (unused for `mock`). Swapping providers must never
+require UI changes. Never train a model or run GPU inference inside the Next.js app/Vercel
+functions.
 
 ### Storage abstraction
 
