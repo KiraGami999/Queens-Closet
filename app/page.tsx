@@ -35,18 +35,27 @@ const steps = [
 ];
 
 const closetPreview = [
-  { name: "Amara Silk Gown", meta: "Evening · Magenta", variant: "purple" as const },
-  { name: "Regent Tailored Blazer", meta: "Tailoring · Deep Purple", variant: "violet" as const },
-  { name: "Solene Pleated Midi", meta: "Day · Coral", variant: "coral" as const },
-  { name: "Lilac Boulevard Trench", meta: "Outerwear · Lavender", variant: "gold" as const },
+  {
+    name: "Regent Belted Jacket",
+    meta: "Outerwear · Black",
+    image: "/catalogue/regent-belted-jacket.jpg",
+  },
+  {
+    name: "Solene Denim Culottes",
+    meta: "Bottom · Charcoal",
+    image: "/catalogue/solene-denim-culottes.jpg",
+  },
+  {
+    name: "Sculptural Ruffle Boots",
+    meta: "Footwear · Black",
+    image: "/catalogue/sculptural-ruffle-boots.jpg",
+  },
+  {
+    name: "Leather Baker Boy Cap",
+    meta: "Accessory · Black",
+    image: "/catalogue/leather-baker-boy-cap.jpg",
+  },
 ];
-
-const swatchClass: Record<string, string> = {
-  purple: "gradient-purple-magenta",
-  violet: "bg-[color:var(--qc-violet)]",
-  coral: "gradient-magenta-coral",
-  gold: "bg-[color:var(--qc-gold)]",
-};
 
 export default async function HomePage() {
   const session = await auth();
@@ -205,13 +214,13 @@ export default async function HomePage() {
             {closetPreview.map((item, index) => (
               <Reveal key={item.name} delay={index * 0.06}>
                 <div className="group overflow-hidden rounded-3xl border border-border/70 bg-card shadow-editorial transition-transform duration-300 hover:-translate-y-1.5">
-                  <div
-                    className={`bg-grain relative flex aspect-[3/4] items-center justify-center overflow-hidden ${swatchClass[item.variant]}`}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
-                    <span className="relative font-heading text-sm text-white/90 italic">
-                      Queens Closet
-                    </span>
+                  <div className="relative aspect-[3/4] overflow-hidden bg-muted">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                    />
                   </div>
                   <div className="p-4">
                     <p className="font-heading text-base leading-tight">{item.name}</p>
