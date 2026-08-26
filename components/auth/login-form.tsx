@@ -33,13 +33,21 @@ export function LoginForm() {
     setIsSubmitting(true);
 
     const result = await signIn("credentials", {
-      ...values,
+      email: values.email.trim().toLowerCase(),
+      password: values.password.trim(),
       redirect: false,
     });
 
     setIsSubmitting(false);
 
     if (result?.error) {
+      if (result.error === "Configuration") {
+        setFormError(
+          "Sign-in is temporarily unavailable. Please try again in a moment."
+        );
+        return;
+      }
+
       setFormError("Incorrect email or password.");
       return;
     }

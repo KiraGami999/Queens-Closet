@@ -7,6 +7,8 @@ import { loginSchema } from "@/lib/validations/auth";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  trustHost: true,
+  secret: process.env.AUTH_SECRET,
   providers: [
     Credentials({
       credentials: {
@@ -19,8 +21,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        const user = await verifyCredentials(parsed.data);
-        return user;
+        try {
+          return await verifyCredentials(parsed.data);
+        } catch (error) {
+          console.error("[auth] verifyCredentials failed", error);
+          return null;
+        }
       },
     }),
   ],
