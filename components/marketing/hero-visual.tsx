@@ -9,7 +9,7 @@ import { GradientBlob } from "@/components/decor/blobs";
  */
 export function HeroVisual() {
   return (
-    <div className="relative mx-auto aspect-[4/5] w-full max-w-md">
+    <div className="relative mx-auto aspect-[4/5] w-full max-w-[20rem] sm:max-w-md">
       <GradientBlob variant="violet" className="-top-10 -left-10 size-56" />
       <GradientBlob variant="coral" className="-bottom-8 -right-6 size-64" />
 
@@ -32,7 +32,7 @@ export function HeroVisual() {
         </div>
       </div>
 
-      <div className="absolute -bottom-6 -left-6 w-48 overflow-hidden rounded-2xl border border-border/70 bg-card/95 p-3 shadow-editorial backdrop-blur-sm">
+      <div className="absolute -bottom-4 left-3 w-36 overflow-hidden rounded-2xl border border-border/70 bg-card/95 p-2.5 shadow-editorial backdrop-blur-sm sm:-bottom-6 sm:-left-6 sm:w-48 sm:p-3">
         <div className="mb-2 aspect-[3/4] overflow-hidden rounded-xl bg-muted">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -41,7 +41,7 @@ export function HeroVisual() {
             className="h-full w-full object-cover"
           />
         </div>
-        <p className="font-heading text-sm leading-tight">Sculptural Ruffle Boots</p>
+        <p className="font-heading text-xs leading-tight sm:text-sm">Sculptural Ruffle Boots</p>
         <p className="mt-0.5 text-[11px] tracking-wide text-muted-foreground uppercase">
           Footwear &middot; Black
         </p>

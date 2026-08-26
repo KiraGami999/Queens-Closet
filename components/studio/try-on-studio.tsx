@@ -155,7 +155,7 @@ export function TryOnStudio({
   const canGenerate = Boolean(photo && garment && image) && !isGenerating;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[220px_1fr_300px]">
+    <div className="grid gap-5 lg:grid-cols-[220px_1fr_300px]">
       {/* LEFT — muse selection */}
       <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
         <p className="mb-3 flex items-center gap-2 text-xs font-medium tracking-[0.16em] text-white/60 uppercase">
@@ -169,7 +169,7 @@ export function TryOnStudio({
               type="button"
               onClick={() => selectClient(c.id)}
               className={cn(
-                "flex shrink-0 items-center gap-3 rounded-2xl border p-2 text-left transition-colors lg:w-full",
+                "flex w-[13.5rem] shrink-0 items-center gap-3 rounded-2xl border p-2 text-left transition-colors sm:w-[15rem] lg:w-full",
                 c.id === clientId
                   ? "border-[color:var(--qc-magenta)] bg-white/10"
                   : "border-white/10 hover:bg-white/5"
@@ -216,8 +216,8 @@ export function TryOnStudio({
       </div>
 
       {/* CENTER — canvas */}
-      <div className="relative flex flex-col items-center justify-center">
-        <div className="relative aspect-[3/4] w-full max-w-md overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.03] shadow-2xl">
+      <div className="relative order-1 flex flex-col items-center justify-center lg:order-none">
+        <div className="relative aspect-[3/4] w-full max-w-[22rem] overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.03] shadow-2xl sm:max-w-md sm:rounded-[1.75rem]">
           {phase === "completed" && resultUrl && photo ? (
             <CompareSlider beforeSrc={photo.url} afterSrc={resultUrl} className="h-full" />
           ) : photo ? (
@@ -254,7 +254,7 @@ export function TryOnStudio({
         </div>
 
         {phase === "completed" ? (
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-5 flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
             <Button
               onClick={() => toast.success("Saved to your creations.")}
               className="gap-2 rounded-full gradient-purple-magenta px-5 text-primary-foreground"
@@ -296,7 +296,7 @@ export function TryOnStudio({
             size="lg"
             disabled={!canGenerate}
             onClick={handleGenerate}
-            className="mt-6 h-12 gap-2 rounded-full gradient-purple-magenta px-8 text-base text-primary-foreground shadow-editorial transition-transform hover:-translate-y-0.5 disabled:opacity-40"
+            className="mt-6 h-12 w-full max-w-sm gap-2 rounded-full gradient-purple-magenta px-8 text-base text-primary-foreground shadow-editorial transition-transform hover:-translate-y-0.5 disabled:opacity-40 sm:w-auto"
           >
             <Wand2 className="size-4" />
             {isGenerating ? "Creating your look…" : "Generate Look"}
@@ -309,13 +309,13 @@ export function TryOnStudio({
       </div>
 
       {/* RIGHT — garment + controls */}
-      <div className="space-y-5">
+      <div className="order-2 space-y-5 lg:order-none">
         <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
           <p className="mb-3 flex items-center gap-2 text-xs font-medium tracking-[0.16em] text-white/60 uppercase">
             <Shirt className="size-3.5" />
             Choose the garment
           </p>
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-4 gap-2.5 sm:grid-cols-3">
             {garments.map((g) => (
               <button
                 key={g.id}

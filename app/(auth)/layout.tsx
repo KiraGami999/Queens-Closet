@@ -27,9 +27,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-center bg-background px-6 py-16">
+      <div className="flex flex-col items-center justify-center bg-background px-4 py-8 sm:px-6 sm:py-12 lg:px-6 lg:py-16">
         <div className="w-full max-w-sm">
-          <div className="mb-8 text-center lg:hidden">
+          <div className="mb-6 text-center lg:hidden">
             <Link href="/" className="flex flex-col items-center leading-none">
               <span className="font-heading text-lg tracking-[0.18em]">QUEENS</span>
               <span className="font-heading text-lg tracking-[0.18em] text-gradient-purple-magenta">
@@ -37,7 +37,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               </span>
             </Link>
           </div>
-          <div className="rounded-3xl border border-border/70 bg-card p-8 shadow-editorial">
+          <div className="rounded-[2rem] border border-border/70 bg-card p-6 shadow-editorial sm:rounded-3xl sm:p-8">
             {children}
           </div>
         </div>

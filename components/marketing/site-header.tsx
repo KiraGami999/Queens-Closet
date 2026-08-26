@@ -10,7 +10,7 @@ const links = [
 
 export function SiteHeader() {
   return (
-    <header className="relative z-20 mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-6 sm:px-10">
+    <header className="relative z-20 mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-4 sm:px-10 sm:py-6">
       <Link href="/" className="flex flex-col leading-none">
         <span className="font-heading text-lg tracking-[0.18em] text-foreground">
           QUEENS
@@ -32,7 +32,7 @@ export function SiteHeader() {
         ))}
       </nav>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <Link
           href="/login"
           className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline"
@@ -41,7 +41,7 @@ export function SiteHeader() {
         </Link>
         <Button
           render={<Link href="/register" />}
-          className="gradient-purple-magenta rounded-full border-0 px-5 text-primary-foreground shadow-editorial hover:opacity-90"
+          className="gradient-purple-magenta rounded-full border-0 px-4 text-sm text-primary-foreground shadow-editorial hover:opacity-90 sm:px-5 sm:text-base"
         >
           Open Studio
         </Button>

@@ -16,10 +16,10 @@ export function TopNav({
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur-md">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6 md:px-10">
+      <div className="mx-auto flex h-15 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 md:h-16 md:px-10">
         <Link href="/dashboard" className="flex flex-col leading-none">
-          <span className="font-heading text-base tracking-[0.16em]">QUEENS</span>
-          <span className="font-heading text-base tracking-[0.16em] text-gradient-purple-magenta">
+          <span className="font-heading text-sm tracking-[0.16em] sm:text-base">QUEENS</span>
+          <span className="font-heading text-sm tracking-[0.16em] text-gradient-purple-magenta sm:text-base">
             CLOSET
           </span>
         </Link>

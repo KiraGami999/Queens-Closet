@@ -24,7 +24,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-svh bg-background">
       <TopNav user={user} />
-      <main className="mx-auto w-full max-w-7xl px-6 py-8 pb-28 md:px-10 md:py-10 lg:pb-10">
+      <main className="mx-auto w-full max-w-7xl px-4 py-6 pb-28 sm:px-6 md:px-10 md:py-8 lg:pb-10">
         {children}
       </main>
       <BottomNav />

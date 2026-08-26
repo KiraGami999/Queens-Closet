@@ -74,14 +74,14 @@ export default async function HomePage() {
       <SiteHeader />
 
       {/* HERO */}
-      <section className="relative mx-auto grid w-full max-w-7xl gap-14 px-6 pt-6 pb-24 sm:px-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-10">
+      <section className="relative mx-auto grid w-full max-w-7xl gap-10 px-4 pt-4 pb-18 sm:px-10 sm:pt-6 sm:pb-24 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-10">
         <div className="max-w-xl">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/70 px-3.5 py-1.5 text-xs font-medium tracking-wide text-[color:var(--qc-magenta)] uppercase">
             <Sparkles className="size-3.5" />
             Virtual Fashion Studio
           </div>
 
-          <h1 className="font-heading text-5xl leading-[1.05] tracking-tight sm:text-6xl">
+          <h1 className="font-heading text-[2.8rem] leading-[1.02] tracking-tight sm:text-6xl">
             WHERE FASHION
             <br />
             <span className="text-gradient-purple-magenta italic">meets imagination.</span>
@@ -91,7 +91,7 @@ export default async function HomePage() {
             Upload a design. Choose your model. Let AI bring the look to life.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-4">
+          <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
             <Button
               size="lg"
               render={<Link href="/register" />}
@@ -112,7 +112,7 @@ export default async function HomePage() {
 
           <ScribbleLine className="mt-10 hidden sm:block" />
 
-          <dl className="mt-10 grid grid-cols-3 gap-6 border-t border-border/70 pt-8">
+          <dl className="mt-10 grid grid-cols-1 gap-5 border-t border-border/70 pt-8 sm:grid-cols-3 sm:gap-6">
             {stats.map((stat) => (
               <div key={stat.label}>
                 <dt className="font-heading text-3xl">{stat.value}</dt>
@@ -130,8 +130,8 @@ export default async function HomePage() {
       </section>
 
       {/* PROCESS */}
-      <section id="studio" className="relative border-t border-border/70 bg-card/40 py-24">
-        <div className="mx-auto w-full max-w-7xl px-6 sm:px-10">
+      <section id="studio" className="relative border-t border-border/70 bg-card/40 py-18 sm:py-24">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-10">
           <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
             <Reveal>
               <p className="text-xs font-medium tracking-[0.2em] text-[color:var(--qc-magenta)] uppercase">
@@ -189,8 +189,8 @@ export default async function HomePage() {
       </section>
 
       {/* CLOSET PREVIEW */}
-      <section id="closet" className="relative py-24">
-        <div className="mx-auto w-full max-w-7xl px-6 sm:px-10">
+      <section id="closet" className="relative py-18 sm:py-24">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-10">
           <Reveal className="flex flex-wrap items-end justify-between gap-6">
             <div>
               <p className="text-xs font-medium tracking-[0.2em] text-[color:var(--qc-magenta)] uppercase">
@@ -236,9 +236,9 @@ export default async function HomePage() {
       </section>
 
       {/* CTA */}
-      <section id="muses" className="relative px-6 pb-24 sm:px-10">
+      <section id="muses" className="relative px-4 pb-18 sm:px-10 sm:pb-24">
         <Reveal>
-          <div className="bg-grain relative mx-auto flex w-full max-w-7xl flex-col items-start gap-6 overflow-hidden rounded-[2rem] gradient-purple-magenta px-8 py-14 sm:px-14">
+          <div className="bg-grain relative mx-auto flex w-full max-w-7xl flex-col items-start gap-5 overflow-hidden rounded-[2rem] gradient-purple-magenta px-5 py-10 sm:gap-6 sm:px-14 sm:py-14">
             <GradientBlob variant="gold" className="top-[-4rem] right-[-4rem] size-64 opacity-30" />
             <p className="text-xs font-medium tracking-[0.2em] text-white/70 uppercase">
               Muses &amp; Clients
@@ -262,8 +262,8 @@ export default async function HomePage() {
         </Reveal>
       </section>
 
-      <footer className="border-t border-border/70 py-10">
-        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-4 px-6 text-center sm:flex-row sm:px-10 sm:text-left">
+      <footer className="border-t border-border/70 py-8 sm:py-10">
+        <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-4 px-4 text-center sm:flex-row sm:px-10 sm:text-left">
           <span className="font-heading text-sm tracking-[0.16em]">QUEENS CLOSET</span>
           <p className="text-xs text-muted-foreground">
             &copy; {new Date().getFullYear()} Queens Closet. Luxury fashion meets creative technology.
