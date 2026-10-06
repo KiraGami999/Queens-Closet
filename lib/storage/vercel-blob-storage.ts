@@ -40,5 +40,3 @@ export class VercelBlobStorage implements ImageStorage {
     await del(storageKey);
   }
 }
-
-export const imageStorage: ImageStorage = new VercelBlobStorage();

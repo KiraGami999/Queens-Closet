@@ -2,7 +2,9 @@ import Link from "next/link";
 
 import { LoginForm } from "@/components/auth/login-form";
 
-export default function LoginPage() {
+export default async function LoginPage({ searchParams }: PageProps<"/login">) {
+  const { suspended } = await searchParams;
+
   return (
     <div className="space-y-8">
       <div className="space-y-1.5">
@@ -13,6 +15,14 @@ export default function LoginPage() {
           Sign in to keep creating unforgettable looks.
         </p>
       </div>
+      {suspended === "1" && (
+        <p
+          role="alert"
+          className="rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+          This account has been paused. Please contact the Queens Closet team to restore access.
+        </p>
+      )}
       <LoginForm />
       <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}

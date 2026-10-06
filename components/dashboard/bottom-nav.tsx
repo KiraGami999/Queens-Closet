@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -28,13 +29,18 @@ export function BottomNav() {
               >
                 <span
                   className={cn(
-                    "flex size-9 items-center justify-center rounded-full transition-colors",
-                    isActive
-                      ? "gradient-purple-magenta text-primary-foreground shadow-editorial"
-                      : "text-muted-foreground"
+                    "relative flex size-9 items-center justify-center rounded-full transition-colors",
+                    isActive ? "text-primary-foreground" : "text-muted-foreground"
                   )}
                 >
-                  <item.icon className="size-[18px]" />
+                  {isActive && (
+                    <motion.span
+                      layoutId="bottom-nav-pill"
+                      className="absolute inset-0 rounded-full gradient-purple-magenta shadow-editorial"
+                      transition={{ type: "spring", stiffness: 420, damping: 30 }}
+                    />
+                  )}
+                  <item.icon className="relative size-[18px]" />
                 </span>
                 <span className={cn(isActive ? "text-foreground" : "text-muted-foreground")}>
                   {item.title === "Try-On Studio" ? "Try-On" : item.title}

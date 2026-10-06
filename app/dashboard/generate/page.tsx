@@ -1,6 +1,8 @@
-import { Sparkles } from "lucide-react";
+import { Shirt, Sparkles, UserPlus } from "lucide-react";
+import Link from "next/link";
 
 import { auth } from "@/auth";
+import { Button } from "@/components/ui/button";
 import { getActiveTryOnProviderName } from "@/lib/ai";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { GradientBlob } from "@/components/decor/blobs";
@@ -54,6 +56,28 @@ export default async function GeneratePage() {
                 icon={Sparkles}
                 title="Add a client and a garment first"
                 description="You'll need at least one client photo and one garment image before you can generate a look."
+                action={
+                  <div className="flex flex-wrap justify-center gap-3">
+                    {clientsWithPhotos.length === 0 && (
+                      <Button
+                        render={<Link href="/dashboard/clients" />}
+                        className="gap-2 rounded-full gradient-purple-magenta px-5 text-primary-foreground"
+                      >
+                        <UserPlus className="size-4" />
+                        Add a client
+                      </Button>
+                    )}
+                    {garmentsWithImages.length === 0 && (
+                      <Button
+                        render={<Link href="/dashboard/garments" />}
+                        className="gap-2 rounded-full gradient-purple-magenta px-5 text-primary-foreground"
+                      >
+                        <Shirt className="size-4" />
+                        Add a garment
+                      </Button>
+                    )}
+                  </div>
+                }
                 note={
                   clientsWithPhotos.length === 0 && garmentsWithImages.length === 0
                     ? undefined

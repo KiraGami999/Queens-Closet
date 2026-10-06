@@ -1,7 +1,8 @@
 "use client";
 
-import { LogOut, Settings } from "lucide-react";
+import { LayoutGrid, LogOut, ShieldCheck } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -24,9 +25,13 @@ function initials(name: string): string {
 
 export function NavUser({
   user,
+  isAdmin = false,
 }: {
   user: { name: string; email: string; image?: string | null };
+  isAdmin?: boolean;
 }) {
+  const router = useRouter();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -55,10 +60,17 @@ export function NavUser({
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Settings />
-          Settings
+        <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+          <LayoutGrid />
+          Studio
         </DropdownMenuItem>
+        {isAdmin && (
+          <DropdownMenuItem onClick={() => router.push("/admin")}>
+            <ShieldCheck />
+            Admin console
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/login" })}>
           <LogOut />
           Sign out

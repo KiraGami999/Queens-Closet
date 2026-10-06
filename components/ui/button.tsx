@@ -1,4 +1,8 @@
+"use client"
+
+import * as React from "react"
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
+import { useRender } from "@base-ui/react/use-render"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
@@ -44,12 +48,28 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  render,
+  focusableWhenDisabled,
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+  const classes = cn(buttonVariants({ variant, size, className }))
+  // `render={<Link />}` etc. renders that element directly with button
+  // styling, so links keep their native link semantics.
+  const rendered = useRender({
+    render: React.isValidElement(render) ? render : undefined,
+    enabled: React.isValidElement(render),
+    props: { ...props, className: classes, "data-slot": "button" },
+  })
+
+  if (rendered) return rendered
+
   return (
     <ButtonPrimitive
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      render={render}
+      nativeButton={render === undefined}
+      focusableWhenDisabled={focusableWhenDisabled}
+      className={classes}
       {...props}
     />
   )

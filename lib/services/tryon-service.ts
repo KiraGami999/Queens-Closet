@@ -8,10 +8,73 @@ import {
 import { prisma } from "@/lib/db/prisma";
 import { getClientOrThrow } from "@/lib/services/client-service";
 import { getGarmentOrThrow } from "@/lib/services/garment-service";
+import { getImageStorage } from "@/lib/storage";
 import type { CreateTryOnSessionInput } from "@/lib/validations/tryon";
 
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_PAGE_SIZE = 50;
+
+/** Per-user generation limits (AI cost protection). Stored in Postgres so
+ * they hold across serverless instances. */
+const MAX_IN_FLIGHT_GENERATIONS = 3;
+const MAX_GENERATIONS_PER_MINUTE = 6;
+const IN_FLIGHT_WINDOW_MS = 10 * 60 * 1000;
+
+async function assertWithinGenerationLimits(userId: string) {
+  const now = Date.now();
+  const [inFlight, lastMinute] = await Promise.all([
+    prisma.tryOnSession.count({
+      where: {
+        userId,
+        status: { in: ["QUEUED", "PROCESSING"] },
+        createdAt: { gte: new Date(now - IN_FLIGHT_WINDOW_MS) },
+      },
+    }),
+    prisma.tryOnSession.count({
+      where: { userId, createdAt: { gte: new Date(now - 60_000) } },
+    }),
+  ]);
+
+  if (inFlight >= MAX_IN_FLIGHT_GENERATIONS || lastMinute >= MAX_GENERATIONS_PER_MINUTE) {
+    throw new AppError(
+      ApiErrorCode.RATE_LIMITED,
+      "You have a few looks in progress already. Please wait for them to finish.",
+      429
+    );
+  }
+}
+
+/** Copies a provider-hosted result into our own storage — provider output
+ * URLs are temporary. Falls back to the provider URL if the copy fails so a
+ * successful generation is never lost. */
+async function persistResultImage(params: {
+  sessionId: string;
+  userId: string;
+  providerName: string;
+  resultUrl: string;
+}): Promise<{ url: string; storageKey: string | null }> {
+  if (params.providerName === "mock") {
+    return { url: params.resultUrl, storageKey: null };
+  }
+
+  try {
+    const response = await fetch(params.resultUrl);
+    if (!response.ok) throw new Error(`Result download responded ${response.status}`);
+    const contentType = response.headers.get("content-type") ?? "image/png";
+    const extension = contentType.includes("jpeg") ? "jpg" : contentType.includes("webp") ? "webp" : "png";
+
+    const uploaded = await getImageStorage().upload({
+      pathPrefix: `results/${params.userId}`,
+      fileName: `${params.sessionId}.${extension}`,
+      contentType,
+      data: await response.arrayBuffer(),
+    });
+    return { url: uploaded.url, storageKey: uploaded.storageKey };
+  } catch (error) {
+    console.error("[tryon] Could not persist result image; keeping provider URL", error);
+    return { url: params.resultUrl, storageKey: null };
+  }
+}
 
 export async function getTryOnSessionOrThrow(params: {
   userId: string;
@@ -91,6 +154,8 @@ export async function createTryOnSession(params: {
     throw new AppError(ApiErrorCode.NOT_FOUND, "Garment image not found.", 404);
   }
 
+  await assertWithinGenerationLimits(params.userId);
+
   const providerName = getActiveTryOnProviderName();
 
   return prisma.tryOnSession.create({
@@ -153,11 +218,19 @@ export async function refreshTryOnSessionStatus(params: {
     const result = await getVirtualTryOnGenerationStatus(session.providerJobId);
 
     if (result.status === "completed" && result.resultUrl) {
+      const stored = await persistResultImage({
+        sessionId: session.id,
+        userId: session.userId,
+        providerName: session.providerName,
+        resultUrl: result.resultUrl,
+      });
+
       return prisma.tryOnSession.update({
         where: { id: session.id },
         data: {
           status: "COMPLETED",
-          resultUrl: result.resultUrl,
+          resultUrl: stored.url,
+          resultStorageKey: stored.storageKey,
           completedAt: new Date(),
         },
       });

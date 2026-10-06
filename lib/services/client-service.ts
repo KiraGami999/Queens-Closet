@@ -1,5 +1,7 @@
 import { AppError, ApiErrorCode } from "@/lib/api/response";
 import { prisma } from "@/lib/db/prisma";
+import { getImageStorage } from "@/lib/storage";
+import type { InspectedImage } from "@/lib/utils/image-validation";
 import type { CreateClientInput, UpdateClientInput } from "@/lib/validations/client";
 
 const DEFAULT_PAGE_SIZE = 20;
@@ -80,6 +82,58 @@ export async function createClient(params: {
       consentAt: params.input.consentGiven ? new Date() : null,
     },
   });
+}
+
+/** Creates a client with their first portrait. Client photos are sensitive,
+ * so a photo is only accepted once consent has been recorded. */
+export async function createClientWithPhoto(params: {
+  userId: string;
+  input: CreateClientInput;
+  photo: InspectedImage;
+  fileName: string;
+}) {
+  if (!params.input.consentGiven) {
+    throw new AppError(
+      ApiErrorCode.VALIDATION_ERROR,
+      "Please confirm the client has consented before uploading their photo.",
+      422
+    );
+  }
+
+  const storage = getImageStorage();
+  const uploaded = await storage.upload({
+    pathPrefix: `clients/${params.userId}`,
+    fileName: params.fileName,
+    contentType: params.photo.contentType,
+    data: params.photo.buffer,
+  });
+
+  try {
+    return await prisma.client.create({
+      data: {
+        userId: params.userId,
+        name: params.input.name,
+        email: params.input.email || null,
+        phone: params.input.phone || null,
+        notes: params.input.notes || null,
+        consentGiven: true,
+        consentAt: new Date(),
+        photos: {
+          create: {
+            url: uploaded.url,
+            storageKey: uploaded.storageKey,
+            width: params.photo.width,
+            height: params.photo.height,
+            format: params.photo.format,
+          },
+        },
+      },
+      include: { photos: true },
+    });
+  } catch (error) {
+    await storage.delete(uploaded.storageKey).catch(() => undefined);
+    throw error;
+  }
 }
 
 export async function updateClient(params: {

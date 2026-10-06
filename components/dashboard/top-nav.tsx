@@ -1,5 +1,7 @@
 "use client";
 
+import { ShieldCheck } from "lucide-react";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -9,17 +11,21 @@ import { cn } from "@/lib/utils";
 
 export function TopNav({
   user,
+  isAdmin,
 }: {
   user: { name: string; email: string; image?: string | null };
+  isAdmin: boolean;
 }) {
   const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex h-15 w-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 md:h-16 md:px-10">
-        <Link href="/dashboard" className="flex flex-col leading-none">
-          <span className="font-heading text-sm tracking-[0.16em] sm:text-base">QUEENS</span>
-          <span className="font-heading text-sm tracking-[0.16em] text-gradient-purple-magenta sm:text-base">
+        <Link href="/dashboard" className="group flex flex-col leading-none">
+          <span className="font-heading text-sm tracking-[0.16em] transition-[letter-spacing] duration-500 group-hover:tracking-[0.24em] sm:text-base">
+            QUEENS
+          </span>
+          <span className="font-heading text-sm tracking-[0.16em] text-gradient-purple-magenta transition-[letter-spacing] duration-500 group-hover:tracking-[0.24em] sm:text-base">
             CLOSET
           </span>
         </Link>
@@ -35,19 +41,37 @@ export function TopNav({
                 key={item.url}
                 href={item.url}
                 className={cn(
-                  "rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                  "relative rounded-full px-4 py-2 text-sm font-medium transition-colors",
                   isActive
-                    ? "gradient-purple-magenta text-primary-foreground shadow-editorial"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    ? "text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                {item.title}
+                {isActive && (
+                  <motion.span
+                    layoutId="top-nav-pill"
+                    className="absolute inset-0 rounded-full gradient-purple-magenta shadow-editorial"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <span className="relative">{item.title}</span>
               </Link>
             );
           })}
         </nav>
 
-        <NavUser user={user} />
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="hidden items-center gap-1.5 rounded-full border border-border/70 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-[color:var(--qc-magenta)]/40 hover:text-foreground sm:flex"
+            >
+              <ShieldCheck className="size-3.5 text-[color:var(--qc-magenta)]" />
+              Admin
+            </Link>
+          )}
+          <NavUser user={user} isAdmin={isAdmin} />
+        </div>
       </div>
     </header>
   );

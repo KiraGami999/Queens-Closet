@@ -1,6 +1,8 @@
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 
+import { AnimatedNumber } from "@/components/motion/animated-number";
+import { TiltCard } from "@/components/motion/tilt-card";
 import { cn } from "@/lib/utils";
 
 export function StatCard({
@@ -34,10 +36,11 @@ export function StatCard({
   };
 
   return (
+    <TiltCard className="h-full rounded-3xl" maxTilt={4}>
     <Link
       href={href}
       className={cn(
-        "group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br p-6 shadow-editorial transition-transform duration-300 hover:-translate-y-1",
+        "group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br p-6 shadow-editorial transition-shadow duration-300 hover:shadow-lg",
         tintClass[tint],
         className
       )}
@@ -57,7 +60,9 @@ export function StatCard({
       </div>
 
       <div className="mt-6">
-        <p className="font-heading text-4xl leading-none">{value}</p>
+        <p className="font-heading text-4xl leading-none">
+          {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
+        </p>
         <p className="mt-2 text-sm text-muted-foreground">{description}</p>
       </div>
 
@@ -75,5 +80,6 @@ export function StatCard({
         </div>
       )}
     </Link>
+    </TiltCard>
   );
 }

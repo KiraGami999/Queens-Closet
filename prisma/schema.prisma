@@ -36,23 +36,51 @@ enum TryOnStatus {
   CANCELLED
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 /// A studio owner / stylist account. Every catalogue entity is scoped to a
 /// User so one account can never see another account's clients, garments,
 /// or generations.
 model User {
-  id           String   @id @default(cuid())
+  id           String    @id @default(cuid())
   name         String
-  email        String   @unique
+  email        String    @unique
   passwordHash String
   image        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  role         UserRole  @default(USER)
+  /// Suspended accounts cannot sign in. Set/cleared from the admin console.
+  suspendedAt  DateTime?
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   clients       Client[]
   garments      Garment[]
   tryOnSessions TryOnSession[]
+  auditLogs     AdminAuditLog[]
 
+  @@index([role])
   @@map("users")
+}
+
+/// Immutable record of every privileged action taken in the admin console.
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  action     String
+  targetType String
+  targetId   String
+  summary    String
+  createdAt  DateTime @default(now())
+
+  actor User @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt])
+  @@index([actorId])
+  @@map("admin_audit_logs")
 }
 
 /// A client/model whose photos are used as the "person" input for try-on
@@ -173,5 +201,6 @@ model TryOnSession {
   @@index([userId, status])
   @@index([status])
   @@index([providerJobId])
+  @@index([createdAt])
   @@map("try_on_sessions")
 }

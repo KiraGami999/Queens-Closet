@@ -61,7 +61,7 @@ export async function verifyCredentials(params: {
     where: { email: params.email.toLowerCase() },
   });
 
-  if (!user) {
+  if (!user || user.suspendedAt) {
     return null;
   }
 
@@ -70,5 +70,26 @@ export async function verifyCredentials(params: {
     return null;
   }
 
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { lastLoginAt: new Date() },
+  });
+
   return toSafeUser(user);
+}
+
+export type UserAccess = {
+  isAdmin: boolean;
+  isSuspended: boolean;
+};
+
+/** Authoritative role/suspension lookup. Read from the DB on every protected
+ * layout render (not the JWT) so admin changes take effect immediately. */
+export async function getUserAccess(userId: string): Promise<UserAccess | null> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true, suspendedAt: true },
+  });
+  if (!user) return null;
+  return { isAdmin: user.role === "ADMIN", isSuspended: user.suspendedAt !== null };
 }

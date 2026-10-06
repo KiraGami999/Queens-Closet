@@ -1,10 +1,9 @@
-import { Plus, Shirt } from "lucide-react";
+import { Shirt } from "lucide-react";
 
 import { auth } from "@/auth";
-import { GarmentCard } from "@/components/dashboard/garment-card";
+import { AddGarmentDialog } from "@/components/dashboard/add-garment-dialog";
 import { EmptyState } from "@/components/dashboard/empty-state";
-import { Reveal } from "@/components/motion/reveal";
-import { Button } from "@/components/ui/button";
+import { GarmentGallery } from "@/components/dashboard/garment-gallery";
 import { listGarments } from "@/lib/services/garment-service";
 
 export default async function GarmentsPage() {
@@ -30,10 +29,7 @@ export default async function GarmentsPage() {
               : "Your clothing catalogue, ready to try on."}
           </p>
         </div>
-        <Button disabled className="gap-2 rounded-full gradient-purple-magenta px-5 text-primary-foreground">
-          <Plus className="size-4" />
-          Add garment
-        </Button>
+        <AddGarmentDialog />
       </div>
 
       {items.length === 0 ? (
@@ -41,17 +37,22 @@ export default async function GarmentsPage() {
           icon={Shirt}
           title="Your closet is waiting."
           description="Add your first piece and start creating unforgettable looks."
-          actionLabel="Add garment"
-          note="Garment uploads are coming soon."
+          action={<AddGarmentDialog />}
         />
       ) : (
-        <Reveal>
-          <div className="columns-1 gap-6 sm:columns-2 lg:columns-3">
-            {items.map((garment) => (
-              <GarmentCard key={garment.id} garment={garment} />
-            ))}
-          </div>
-        </Reveal>
+        <GarmentGallery
+          garments={items.map((garment) => ({
+            id: garment.id,
+            name: garment.name,
+            category: garment.category,
+            description: garment.description,
+            images: garment.images.map((image) => ({
+              url: image.url,
+              width: image.width,
+              height: image.height,
+            })),
+          }))}
+        />
       )}
     </div>
   );

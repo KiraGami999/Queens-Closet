@@ -7,31 +7,31 @@ import { GradientBlob } from "@/components/decor/blobs";
 import { ScribbleLine } from "@/components/decor/blobs";
 import { SiteHeader } from "@/components/marketing/site-header";
 import { HeroVisual } from "@/components/marketing/hero-visual";
+import { ProcessShowcase } from "@/components/marketing/process-showcase";
+import { AnimatedNumber } from "@/components/motion/animated-number";
+import { Marquee } from "@/components/motion/marquee";
 import { Reveal } from "@/components/motion/reveal";
+import { ScrollProgress } from "@/components/motion/scroll-progress";
+import { TiltCard } from "@/components/motion/tilt-card";
+import { WordRotator } from "@/components/motion/word-rotator";
 import { Button } from "@/components/ui/button";
 
 const stats = [
-  { value: "3", label: "Considered steps from sketch to finished look" },
-  { value: "100%", label: "Client photos stay private to your studio" },
-  { value: "24/7", label: "Your AI atelier, always open" },
-];
+  { value: 3, suffix: "", label: "Considered steps from sketch to finished look" },
+  { value: 100, suffix: "%", label: "Client photos stay private to your studio" },
+  { value: null, display: "24/7", label: "Your AI atelier, always open" },
+] as const;
 
-const steps = [
-  {
-    index: "01",
-    title: "Upload the garment",
-    description: "Drop in flats, product shots or fabric studies from your closet.",
-  },
-  {
-    index: "02",
-    title: "Choose the muse",
-    description: "Pick a client portrait from your model portfolio.",
-  },
-  {
-    index: "03",
-    title: "Generate the look",
-    description: "AI drapes the piece and returns a campaign-ready frame.",
-  },
+const heroWords = ["imagination.", "the runway.", "couture.", "your muse."] as const;
+
+const lookbook = [
+  { name: "Regent Belted Jacket", image: "/catalogue/regent-belted-jacket.jpg" },
+  { name: "Noir Edit", image: "/catalogue/noir-edit-lookbook.jpg" },
+  { name: "Solene Denim Culottes", image: "/catalogue/solene-denim-culottes.jpg" },
+  { name: "Layered Silver Chain", image: "/catalogue/layered-silver-chain.jpg" },
+  { name: "Sculptural Ruffle Boots", image: "/catalogue/sculptural-ruffle-boots.jpg" },
+  { name: "Bamboo Silver Hoops", image: "/catalogue/bamboo-silver-hoops.jpg" },
+  { name: "Leather Baker Boy Cap", image: "/catalogue/leather-baker-boy-cap.jpg" },
 ];
 
 const closetPreview = [
@@ -71,6 +71,7 @@ export default async function HomePage() {
         <GradientBlob variant="coral" className="top-40 right-[-10rem] size-[24rem] opacity-30" />
       </div>
 
+      <ScrollProgress />
       <SiteHeader />
 
       {/* HERO */}
@@ -84,7 +85,8 @@ export default async function HomePage() {
           <h1 className="font-heading text-[2.8rem] leading-[1.02] tracking-tight sm:text-6xl">
             WHERE FASHION
             <br />
-            <span className="text-gradient-purple-magenta italic">meets imagination.</span>
+            <span className="text-gradient-purple-magenta italic">meets </span>
+            <WordRotator words={heroWords} className="text-gradient-purple-magenta pr-2 italic" />
           </h1>
 
           <p className="mt-6 max-w-md text-base leading-relaxed text-muted-foreground">
@@ -115,7 +117,13 @@ export default async function HomePage() {
           <dl className="mt-10 grid grid-cols-1 gap-5 border-t border-border/70 pt-8 sm:grid-cols-3 sm:gap-6">
             {stats.map((stat) => (
               <div key={stat.label}>
-                <dt className="font-heading text-3xl">{stat.value}</dt>
+                <dt className="font-heading text-3xl">
+                  {stat.value === null ? (
+                    stat.display
+                  ) : (
+                    <AnimatedNumber value={stat.value} suffix={stat.suffix} />
+                  )}
+                </dt>
                 <dd className="mt-1 text-[11px] leading-snug text-muted-foreground uppercase tracking-wide">
                   {stat.label}
                 </dd>
@@ -129,62 +137,48 @@ export default async function HomePage() {
         </Reveal>
       </section>
 
+      {/* LOOKBOOK MARQUEE */}
+      <section aria-label="Noir Edit lookbook" className="border-t border-border/70 py-8 sm:py-10">
+        <Marquee durationSeconds={50}>
+          {lookbook.map((item) => (
+            <figure
+              key={item.name}
+              className="group relative h-44 w-32 shrink-0 overflow-hidden rounded-2xl border border-border/70 shadow-editorial sm:h-56 sm:w-40"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={item.image}
+                alt={item.name}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-2.5 text-[11px] font-medium text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                {item.name}
+              </figcaption>
+            </figure>
+          ))}
+        </Marquee>
+      </section>
+
       {/* PROCESS */}
       <section id="studio" className="relative border-t border-border/70 bg-card/40 py-18 sm:py-24">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-10">
-          <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-            <Reveal>
-              <p className="text-xs font-medium tracking-[0.2em] text-[color:var(--qc-magenta)] uppercase">
-                The Process
-              </p>
-              <h2 className="mt-4 font-heading text-4xl leading-tight sm:text-5xl">
-                YOUR STYLE.
-                <br />
-                <span className="text-gradient-purple-magenta italic">Reimagined.</span>
-              </h2>
-              <p className="mt-5 max-w-md text-sm leading-relaxed text-muted-foreground">
-                Three considered steps between a sketch and a finished editorial
-                image — no photoshoot, no studio hire, no compromise on taste.
-              </p>
-
-              <ol className="mt-10 space-y-7">
-                {steps.map((step) => (
-                  <li key={step.index} className="flex gap-5 border-l border-border/70 pl-5">
-                    <span className="font-heading text-sm text-[color:var(--qc-coral)]">
-                      {step.index}
-                    </span>
-                    <div>
-                      <p className="font-heading text-lg">{step.title}</p>
-                      <p className="mt-1 text-sm text-muted-foreground">{step.description}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </Reveal>
-
-            <Reveal delay={0.15}>
-              <div className="bg-grain relative overflow-hidden rounded-[1.75rem] shadow-editorial">
-                <div
-                  className="aspect-[4/3] w-full"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(circle at 20% 20%, var(--qc-coral) 0%, transparent 45%), radial-gradient(circle at 80% 30%, var(--qc-gold) 0%, transparent 40%), radial-gradient(circle at 50% 90%, var(--qc-magenta) 0%, transparent 55%), linear-gradient(135deg, var(--qc-purple), var(--qc-magenta))",
-                  }}
-                />
-                <div className="absolute inset-x-4 bottom-4 rounded-2xl border border-white/25 bg-white/15 px-5 py-4 backdrop-blur-md">
-                  <p className="text-[10px] font-medium tracking-[0.2em] text-white/80 uppercase">
-                    Now generating
-                  </p>
-                  <p className="mt-1 font-heading text-lg text-white italic">
-                    Creating your look&hellip;
-                  </p>
-                  <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-white/25">
-                    <div className="h-full w-2/3 rounded-full bg-white" />
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          </div>
+          <Reveal className="mb-12 max-w-xl">
+            <p className="text-xs font-medium tracking-[0.2em] text-[color:var(--qc-magenta)] uppercase">
+              The Process
+            </p>
+            <h2 className="mt-4 font-heading text-4xl leading-tight sm:text-5xl">
+              YOUR STYLE.{" "}
+              <span className="text-gradient-purple-magenta italic">Reimagined.</span>
+            </h2>
+            <p className="mt-5 max-w-md text-sm leading-relaxed text-muted-foreground">
+              Three considered steps between a sketch and a finished editorial
+              image — no photoshoot, no studio hire, no compromise on taste.
+            </p>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <ProcessShowcase />
+          </Reveal>
         </div>
       </section>
 
@@ -213,7 +207,8 @@ export default async function HomePage() {
           <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {closetPreview.map((item, index) => (
               <Reveal key={item.name} delay={index * 0.06}>
-                <div className="group overflow-hidden rounded-3xl border border-border/70 bg-card shadow-editorial transition-transform duration-300 hover:-translate-y-1.5">
+                <TiltCard className="rounded-3xl">
+                <div className="group overflow-hidden rounded-3xl border border-border/70 bg-card shadow-editorial">
                   <div className="relative aspect-[3/4] overflow-hidden bg-muted">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -229,6 +224,7 @@ export default async function HomePage() {
                     </p>
                   </div>
                 </div>
+                </TiltCard>
               </Reveal>
             ))}
           </div>

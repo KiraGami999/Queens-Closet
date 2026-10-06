@@ -1,10 +1,11 @@
-import { Plus, Users } from "lucide-react";
+import { Users } from "lucide-react";
 
 import { auth } from "@/auth";
+import { AddClientDialog } from "@/components/dashboard/add-client-dialog";
 import { ClientCard } from "@/components/dashboard/client-card";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { Reveal } from "@/components/motion/reveal";
-import { Button } from "@/components/ui/button";
+import { TiltCard } from "@/components/motion/tilt-card";
 import { listClients } from "@/lib/services/client-service";
 
 export default async function ClientsPage() {
@@ -30,10 +31,7 @@ export default async function ClientsPage() {
               : "Manage client profiles and photos used for try-on generations."}
           </p>
         </div>
-        <Button disabled className="gap-2 rounded-full gradient-purple-magenta px-5 text-primary-foreground">
-          <Plus className="size-4" />
-          Add client
-        </Button>
+        <AddClientDialog />
       </div>
 
       {items.length === 0 ? (
@@ -41,17 +39,18 @@ export default async function ClientsPage() {
           icon={Users}
           title="Your portfolio is empty."
           description="Add a client and their photo to start generating personalised looks."
-          actionLabel="Add client"
-          note="Client uploads are coming soon."
+          action={<AddClientDialog />}
         />
       ) : (
-        <Reveal>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {items.map((client) => (
-              <ClientCard key={client.id} client={client} />
-            ))}
-          </div>
-        </Reveal>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {items.map((client, index) => (
+            <Reveal key={client.id} delay={Math.min(index, 8) * 0.05}>
+              <TiltCard className="rounded-3xl">
+                <ClientCard client={client} />
+              </TiltCard>
+            </Reveal>
+          ))}
+        </div>
       )}
     </div>
   );

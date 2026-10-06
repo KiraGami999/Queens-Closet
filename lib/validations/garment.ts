@@ -12,6 +12,16 @@ export const garmentCategorySchema = z.enum([
 
 export type GarmentCategoryInput = z.infer<typeof garmentCategorySchema>;
 
+export const garmentCategoryLabels: Record<GarmentCategoryInput, string> = {
+  TOP: "Top",
+  BOTTOM: "Bottom",
+  DRESS: "Dress",
+  OUTERWEAR: "Outerwear",
+  FOOTWEAR: "Footwear",
+  ACCESSORY: "Accessory",
+  FULL_BODY: "Full Body",
+};
+
 export const createGarmentSchema = z.object({
   name: z.string().trim().min(1, "Garment name is required.").max(150),
   category: garmentCategorySchema,

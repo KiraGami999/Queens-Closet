@@ -1,5 +1,7 @@
 import { AppError, ApiErrorCode } from "@/lib/api/response";
 import { prisma } from "@/lib/db/prisma";
+import { getImageStorage } from "@/lib/storage";
+import type { InspectedImage } from "@/lib/utils/image-validation";
 import type { GarmentCategoryInput } from "@/lib/validations/garment";
 import type { CreateGarmentInput, UpdateGarmentInput } from "@/lib/validations/garment";
 
@@ -71,6 +73,48 @@ export async function createGarment(params: {
       description: params.input.description || null,
     },
   });
+}
+
+/** Uploads the garment image to storage, then creates the garment and its
+ * image record together. Removes the uploaded file if the DB write fails so
+ * storage never accumulates orphans. */
+export async function createGarmentWithImage(params: {
+  userId: string;
+  input: CreateGarmentInput;
+  image: InspectedImage;
+  fileName: string;
+}) {
+  const storage = getImageStorage();
+  const uploaded = await storage.upload({
+    pathPrefix: `garments/${params.userId}`,
+    fileName: params.fileName,
+    contentType: params.image.contentType,
+    data: params.image.buffer,
+  });
+
+  try {
+    return await prisma.garment.create({
+      data: {
+        userId: params.userId,
+        name: params.input.name,
+        category: params.input.category,
+        description: params.input.description || null,
+        images: {
+          create: {
+            url: uploaded.url,
+            storageKey: uploaded.storageKey,
+            width: params.image.width,
+            height: params.image.height,
+            format: params.image.format,
+          },
+        },
+      },
+      include: { images: true },
+    });
+  } catch (error) {
+    await storage.delete(uploaded.storageKey).catch(() => undefined);
+    throw error;
+  }
 }
 
 export async function updateGarment(params: {
